@@ -47,11 +47,11 @@ void draw_field(){
 	bkgd(COLOR_PAIR(3));
 	mvprintw(1,10,"ADS Snake\t\t\t\t\t by: Joao M. and Douglas G.");
 	attron(COLOR_PAIR(2));
-	mvprintw(3,19,"Uses as setas do seu teclado para movimentar a cobra!");
+	mvprintw(3,15,"Uses as setas do seu teclado para movimentar a cobra!");
 	attroff(COLOR_PAIR(2));
 	field = subwin(stdscr,HEIGTH,WIDTH,POS_FIELD_X,POS_FIELD_Y);
 	wbkgd(field,COLOR_PAIR(1));
-	box(field,ACS_VLINE,ACS_HLINE);
+	box(field,0,0);
 	
 }
 
