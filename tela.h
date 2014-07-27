@@ -15,10 +15,14 @@ void gameOver();
 /*Encerra ncurses*/
 void close();
 
-/*Desenha parte da cobra*/
+/*Desenha parte da cobra, recebe uma parte da cobra que contem sua posição salva
+line e col sao demonstrativas*/
 void drawSnakePart(int line, int col);
 
 /*Desenha o campo*/
 void draw_field();//
+
+/*Ler entrada do teclado*/
+void readKey();
 
 #endif
