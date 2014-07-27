@@ -45,7 +45,7 @@ void drawSnakePart(int line, int col){
 void draw_field(){
 	init_curses();
 	bkgd(COLOR_PAIR(3));
-	mvprintw(1,10,"ADS Snake\t\t\t\t\t by: Joao M. and Douglas G.");
+	mvprintw(1,10,"ADS Snake\t\t\t\t by: Joao M. and Douglas G.");
 	attron(COLOR_PAIR(2));
 	mvprintw(3,15,"Uses as setas do seu teclado para movimentar a cobra!");
 	attroff(COLOR_PAIR(2));
@@ -60,7 +60,9 @@ int main(int argc, char const *argv[])
 {
 	
 	draw_field();
+	getch();
 	gameOver();
+	wrefresh(field);
 	getch();
 	close();
 
