@@ -20,7 +20,13 @@ line e col sao demonstrativas*/
 void drawSnakePart(int line, int col);
 
 /*Desenha o campo*/
-void draw_field();//
+void draw_field();
+
+/*Atualiza o campo*/
+void refreshField();
+
+/*Limpa completamente o campo*/
+void clearField();
 
 /*Ler entrada do teclado*/
 void readKey();

@@ -55,15 +55,30 @@ void draw_field(){
 	
 }
 
-//main temporario para testes
+void clearField(){
+	wclear(field);
+	box(field,0,0);
+	wrefresh(field);
+
+}
+
+void refreshField(){
+	wrefresh(field);
+}
+
+//main temporario para testes.
 int main(int argc, char const *argv[])
 {
 	
 	draw_field();
-	getch();
 	gameOver();
-	wrefresh(field);
 	getch();
+	clearField();
+	gameOver();
+	getch();
+	refreshField();
+	getch();
+
 	close();
 
 }
