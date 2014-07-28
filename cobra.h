@@ -3,10 +3,16 @@
 
 typedef struct snakepart SnakePart;
 typedef struct snake Snake;
+typedef struct food Food;
 
 struct snakepart{
-	int x,y;
-	SnakePart *nextPart;
+	int col, line;
+	SnakePart *next;
+	SnakePart *prev;
+};
+
+struct food {
+	int col, line;
 };
 
 struct snake{
@@ -15,17 +21,21 @@ struct snake{
 	int length;
 };
 
+Food* createFood ();
+
 /*Inicializa uma snake*/
-Snake createSnake(Snake c);
+Snake* createSnake();
 
 /*cria nova parte da snake*/
-SnakePart newSnakePart();
+SnakePart* newSnakePart();
 
 /*adiciona uma nova parte à snake*/
-void snakeIncrease(Snake c);
+void snakeIncrease(Snake *snake);
 
 /*Destroi uma snake*/
-void snakeDestroy(Snake c);
+void snakeDestroy(Snake *snake);
+
+//void snakeReverse (Snake c);
 
 
 #endif

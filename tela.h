@@ -28,7 +28,7 @@ void refreshField();
 /*Limpa completamente o campo*/
 void clearField();
 
-/*Ler entrada do teclado*/
-void readKey();
+/*Jogo (lê comandos e move a cobra)*/
+void playGame ();
 
 #endif
