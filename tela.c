@@ -9,7 +9,7 @@
 #define HEIGTH 20								//tamanho da janela
 #define POS_FIELD_X 5 							//onde começa o campo
 #define POS_FIELD_Y 10 							//onde começa o campo
-#define TIME 2
+#define TIME (CLOCKS_PER_SEC / 2)
 
 WINDOW *field;									//cria um ponteiro para o tipo WINDOW definido na biblioteca NCURSES
 
@@ -33,9 +33,14 @@ void init_curses()
     keypad(stdscr,TRUE);
 }
 
-void gameOver(){
+void gameOver(Snake *snake){
 	char msg[] = "Game Over!";
+	// snakeDestroy(snake);
+	clearField();
 	mvwprintw(field,HEIGTH/2,WIDTH/2-strlen(msg)/2,"%s",msg);
+	refreshField();
+	nodelay(field, false);
+	getch();
 	//mostra ranking/salva/sai/reinicia
 }
 
@@ -111,8 +116,8 @@ void moveFood (Food *food){
 	srand (time(NULL));
 
 	/* Os números gerads estarão entre as demarcações do cenário */
-	food->line = ((rand() % HEIGTH)+1);
-	food->col  = ((rand() % WIDTH)+1);
+	food->line =  ((rand() % HEIGTH+2)+1);
+	food->col  =  ((rand() % WIDTH+2)+1);
 }
 
 void playGame (){
@@ -128,19 +133,18 @@ void playGame (){
 
 	for(;;){
 		
-		/*Devolve a quantidade de clocks da máquina desde o início do programa*/
 		clock_t start = clock();
 		clearField ();		
 		drawScenario (snake, food);
 		refreshField();
 		nodelay(field, true);
 
-		keyNext = getch(); // É provável que o erro esteja aqui
+		keyNext = getch();
 
 		do{
 			if (keyNext == ERR)
 				keyNext = getch();
-		}while (clock() - start < (CLOCKS_PER_SEC / TIME) - score*1000);
+		}while (clock() - start < TIME - score*1000);
 
 		key = keyNext != ERR ? keyNext : key;	
 		moveSnake (snake, key);
@@ -149,15 +153,15 @@ void playGame (){
 			score += 5;
 			snakeIncrease(snake, key);
 			moveFood (food);
-		}else if (snake->head->line <= 0 || snake->head->line >= HEIGTH || snake->head->col <= 0 || snake->head->col >= WIDTH){
-			gameOver();
+		}else if (snake->head->line <= 0 || snake->head->line >= HEIGTH || snake->head->col <= 0 || snake->head->col >= WIDTH ){
+			gameOver(snake);
 			break;
 		}
 		else{	
 			part = snake->head->next;
 			while (part){
-				if (snake->head->line == part->line || snake->head->col == part->col)
-					gameOver();
+				if (snake->head->line == part->line && snake->head->col == part->col)
+					gameOver(snake);
 				part = part->next;
 			}
 		}
