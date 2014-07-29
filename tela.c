@@ -9,6 +9,7 @@
 #define HEIGTH 20								//tamanho da janela
 #define POS_FIELD_X 5 							//onde começa o campo
 #define POS_FIELD_Y 10 							//onde começa o campo
+#define TIME 2
 
 WINDOW *field;									//cria um ponteiro para o tipo WINDOW definido na biblioteca NCURSES
 
@@ -110,13 +111,13 @@ void moveFood (Food *food){
 	srand (time(NULL));
 
 	/* Os números gerads estarão entre as demarcações do cenário */
-	food->line = (rand() % HEIGTH-1);
-	food->col  = (rand() % WIDTH-1);
+	food->line = ((rand() % HEIGTH)+1);
+	food->col  = ((rand() % WIDTH)+1);
 }
 
 void playGame (){
 	
-	int key, keyNext;
+	int key, keyNext, score = 0;
 	SnakePart *part;
 	Snake *snake = createSnake();
 	snake->head->line = HEIGTH/2;
@@ -132,7 +133,6 @@ void playGame (){
 		clearField ();		
 		drawScenario (snake, food);
 		refreshField();
-		mvwprintw(field, 1, 2, "kasd");
 		nodelay(field, true);
 
 		keyNext = getch(); // É provável que o erro esteja aqui
@@ -140,13 +140,13 @@ void playGame (){
 		do{
 			if (keyNext == ERR)
 				keyNext = getch();
-
-		}while (clock() - start < CLOCKS_PER_SEC / 5);
+		}while (clock() - start < (CLOCKS_PER_SEC / TIME) - score*1000);
 
 		key = keyNext != ERR ? keyNext : key;	
 		moveSnake (snake, key);
 		
 		if (snake->head->col == food->col && snake->head->line == food->line){
+			score += 5;
 			snakeIncrease(snake, key);
 			moveFood (food);
 		}else if (snake->head->line <= 0 || snake->head->line >= HEIGTH || snake->head->col <= 0 || snake->head->col >= WIDTH){
