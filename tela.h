@@ -2,6 +2,7 @@
 #define TELA_h
 #include <ncurses.h>
 #include <string.h>
+#include "cobra.h"
 
 #define FOOD '*'
 #define SNAKE 'o'
@@ -30,5 +31,7 @@ void clearField();
 
 /*Jogo (lê comandos e move a cobra)*/
 void playGame ();
+
+void moveSnake(Snake *snake, int key);
 
 #endif

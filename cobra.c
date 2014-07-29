@@ -1,5 +1,6 @@
 #include "cobra.h"
 #include <stdlib.h>
+#include "tela.h"
 
 Food* createFood (){
 	
@@ -11,15 +12,21 @@ Food* createFood (){
 SnakePart* newSnakePart (){
 
 	SnakePart *part = malloc (sizeof (SnakePart));
+	part->prev = part->next = NULL;
 	return part;
 }
 
-void snakeIncrease (Snake *snake){
+void snakeIncrease (Snake *snake, int key){
 
 	SnakePart *newPart = newSnakePart();
+	newPart->line = snake->tail->line;
+	newPart->col = snake->tail->col;
+	moveSnake(snake, key);
+	snake->tail->next = newPart;
 	newPart->prev = snake->tail;
-	snake->tail = newPart;
 	newPart->next = NULL;
+	snake->tail = newPart;
+	snake->length++;
 }
 
 Snake* createSnake (){
