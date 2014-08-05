@@ -4,6 +4,7 @@
 #include <time.h>
 #include "cobra.h"
 #include <stdlib.h>
+#include "menu.h"
 
 #define WIDTH 65								//tamanho da janela
 #define HEIGTH 20								//tamanho da janela
@@ -32,6 +33,78 @@ void init_curses()
     /*Lê caracteres especiais do teclado*/
     keypad(stdscr,TRUE);
 }
+
+int initMenu(){
+	int i;
+	items = (ITEM **)calloc(4, sizeof(ITEM *));
+	if(!items)
+		return ERROR;
+
+	for(i=0;i<4;++i)
+		items[i] = (ITEM*)new_item(" ", choices[i]);
+
+	menu = new_menu((ITEM **)items);
+	set_menu_spacing(menu,-1,1,1);
+}
+
+void initWinMenu(){
+	menu_window = subwin(field,WMENU_HEIGHT,WMENU_WIDTH,WMENU_X,WMENU_Y);
+	keypad(menu_window, TRUE);
+	wbkgd(menu_window,COLOR_PAIR(3));
+	set_menu_win(menu, menu_window);
+    set_menu_sub(menu, derwin(menu_window, WMENU_HEIGHT-1, WMENU_WIDTH-1, 1, 1));
+    set_menu_mark(menu,">");
+	box(menu_window,0,0);
+	post_menu(menu);
+} 
+
+void exitMenu(){
+	int i;
+	/*exclui menu*/	
+	unpost_menu(menu);
+
+	/*desaloca os items do menu*/
+	for(i=0;choices[i];i++)
+		free_item(items[i]);	
+	/*desaloca o menu*/
+	free_menu(menu);
+
+	/*deleta a janela do menu*/
+	delwin(menu_window);
+
+	/*Limpa a tela*/
+	clearField();
+
+}
+
+void readkeyMenu(){
+	int key;
+	do
+	{
+		key = wgetch(menu_window);
+	   	switch(key)
+	    {	
+	    	case KEY_DOWN:
+		        menu_driver(menu, REQ_DOWN_ITEM);
+				break;
+			case KEY_UP:
+				menu_driver(menu, REQ_UP_ITEM);
+				break;
+		}
+
+		if(key == 10){
+			cur_item = current_item(menu);
+			if (cur_item == items[ITEM_4])
+			{
+				exitMenu();
+				break;
+			}
+			
+		}
+	}while(true);
+
+}
+
 
 void gameOver(Snake *snake){
 	char msg[] = "Game Over!";
