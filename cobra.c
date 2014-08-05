@@ -19,14 +19,25 @@ SnakePart* newSnakePart (){
 void snakeIncrease (Snake *snake, int key){
 
 	SnakePart *newPart = newSnakePart();
-	newPart->line = snake->tail->line;
-	newPart->col = snake->tail->col;
-	moveSnake(snake, key);
+	if (key == KEY_UP){
+		newPart->line = snake->tail->line + 1;
+		newPart->col  = snake->tail->col;
+	}else if (key == KEY_DOWN){
+		newPart->line = snake->tail->line - 1;
+		newPart->col  = snake->tail->col;
+	}else if (key == KEY_LEFT){
+		newPart->col = snake->tail->col + 1;
+		newPart->line  = snake->tail->line;
+	}else if (key == KEY_RIGHT){
+		newPart->col = snake->tail->col - 1;
+		newPart->line  = snake->tail->line;
+	}
 	snake->tail->next = newPart;
 	newPart->prev = snake->tail;
 	newPart->next = NULL;
 	snake->tail = newPart;
 	snake->length++;
+	
 }
 
 Snake* createSnake (){
@@ -46,4 +57,18 @@ void snakeDestroy (Snake *snake){
 	}
 
 	free(snake);
+}
+
+void snakeReverse (Snake *snake){
+	SnakePart *part;
+	snake->tail = snake->head;
+
+	while (snake->head){
+		part = snake->head->next;
+		snake->head->next = snake->head->prev;
+		snake->head->prev = part;
+		if (part)
+			snake->head = part;
+		else break;
+	}
 }

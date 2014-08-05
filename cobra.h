@@ -23,19 +23,15 @@ struct snake{
 
 Food* createFood ();
 
-/*Inicializa uma snake*/
 Snake* createSnake();
 
-/*cria nova parte da snake*/
 SnakePart* newSnakePart();
 
-/*adiciona uma nova parte à snake*/
 void snakeIncrease(Snake *snake, int key);
 
-/*Destroi uma snake*/
 void snakeDestroy(Snake *snake);
 
-//void snakeReverse (Snake c);
+void snakeReverse (Snake *snake);
 
 
 #endif

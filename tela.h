@@ -11,7 +11,7 @@
 void init_curses();
 
 /*Fim de jogo*/
-void gameOver();
+void gameOver(Snake *snake);
 
 /*Encerra ncurses*/
 void close();

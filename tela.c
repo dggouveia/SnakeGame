@@ -9,7 +9,7 @@
 #define HEIGTH 20								//tamanho da janela
 #define POS_FIELD_X 5 							//onde começa o campo
 #define POS_FIELD_Y 10 							//onde começa o campo
-#define TIME (CLOCKS_PER_SEC / 2)
+#define TIME (CLOCKS_PER_SEC / 5)
 
 WINDOW *field;									//cria um ponteiro para o tipo WINDOW definido na biblioteca NCURSES
 
@@ -58,6 +58,7 @@ void drawScenario(Snake *snake, Food *food){
 		wattroff(field, COLOR_PAIR(4));
 		part = part->next;
 	}
+	mvwprintw (stdscr, 1, 1, "line = %d / col = %d", food->line, food->col);
 	mvwprintw(field, food->line, food->col, "X");
 }
 
@@ -106,7 +107,7 @@ void moveSnake (Snake *snake, int key){
 	else if (key == KEY_LEFT)
 		part->col--;
 	else if (key == KEY_RIGHT)
-		part->col++;	
+		part->col++;
 }
 
 
@@ -116,8 +117,10 @@ void moveFood (Food *food){
 	srand (time(NULL));
 
 	/* Os números gerads estarão entre as demarcações do cenário */
-	food->line =  ((rand() % HEIGTH+2)+1);
-	food->col  =  ((rand() % WIDTH+2)+1);
+	food->line =  ((rand() % (HEIGTH-2)+1));
+	
+	food->col  =  ((rand() % (WIDTH-2))+1);
+	
 }
 
 void playGame (){
@@ -146,14 +149,25 @@ void playGame (){
 				keyNext = getch();
 		}while (clock() - start < TIME - score*1000);
 
-		key = keyNext != ERR ? keyNext : key;	
+		if (keyNext == (int)' '){
+			snakeReverse(snake);
+			if (key == KEY_UP)
+				key = KEY_DOWN;
+			else if (key == KEY_DOWN)
+				key = KEY_UP;
+			else if (key == KEY_LEFT)
+				key = KEY_RIGHT;
+			else if (key == KEY_RIGHT)
+				key = KEY_LEFT;
+		}else key = keyNext != ERR ? keyNext : key;	
+
 		moveSnake (snake, key);
 		
 		if (snake->head->col == food->col && snake->head->line == food->line){
 			score += 5;
 			snakeIncrease(snake, key);
 			moveFood (food);
-		}else if (snake->head->line <= 0 || snake->head->line >= HEIGTH || snake->head->col <= 0 || snake->head->col >= WIDTH ){
+		}else if (snake->head->line <= 0 || snake->head->line >= HEIGTH-1 || snake->head->col <= 0 || snake->head->col >= WIDTH-1 ){
 			gameOver(snake);
 			break;
 		}
