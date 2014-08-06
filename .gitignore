@@ -1,1 +1,3 @@
 *.out
+/ranking.h.gch
+/ranking.o
