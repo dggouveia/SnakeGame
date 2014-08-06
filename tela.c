@@ -12,7 +12,12 @@
 #define POS_FIELD_Y 10 							//onde começa o campo
 #define TIME (CLOCKS_PER_SEC / 5)
 
-WINDOW *field;									//cria um ponteiro para o tipo WINDOW definido na biblioteca NCURSES
+WINDOW *field; //cria um ponteiro para o tipo WINDOW definido na biblioteca NCURSES
+ITEM **items; //vetor de items
+MENU *menu; //menu
+ITEM *cur_item; //item selecionado
+WINDOW *menu_window; //janela que irá conter o menu
+
 
 void init_curses()
 {
@@ -38,7 +43,7 @@ int initMenu(){
 	int i;
 	items = (ITEM **)calloc(4, sizeof(ITEM *));
 	if(!items)
-		return ERROR;
+		return 1;
 
 	for(i=0;i<4;++i)
 		items[i] = (ITEM*)new_item(" ", choices[i]);
@@ -94,26 +99,43 @@ void readkeyMenu(){
 
 		if(key == 10){
 			cur_item = current_item(menu);
-			if (cur_item == items[ITEM_4])
+			if (cur_item == items[ITEM_1])
 			{
-				exitMenu();
+				playGame();
 				break;
 			}
+			else if (cur_item == items[ITEM_4])
+			{
+				exitMenu();
+				close();
+				exit(0);
+			}
+
 			
 		}
 	}while(true);
 
 }
 
+void openMenu(){
+	initMenu();
+	initWinMenu();
+	refresh();
+	readkeyMenu();
+}
+
 
 void gameOver(Snake *snake){
 	char msg[] = "Game Over!";
-	// snakeDestroy(snake);
+	snakeDestroy(snake);
+	nodelay(stdscr, false);
 	clearField();
 	mvwprintw(field,HEIGTH/2,WIDTH/2-strlen(msg)/2,"%s",msg);
 	refreshField();
-	nodelay(field, false);
 	getch();
+	nodelay(stdscr, true);
+	openMenu();
+
 	//mostra ranking/salva/sai/reinicia
 }
 

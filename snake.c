@@ -6,6 +6,6 @@
 void main (void){
 	
 	draw_field();
-	playGame();
+	openMenu();
 	close();
 }
