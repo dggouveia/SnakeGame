@@ -33,14 +33,18 @@ Player* newPlayer(char name[], int score){
 }
 
 void addToRanking(Ranking *rank,Player *p){
-	if (rank->top == NULL){
-		rank->top = p;
-		rank->tail = p;
-	}else{
-		rank->tail->next = p;
-		rank->tail = p;
+	if (rank->lenght<11){
+		if (rank->top == NULL){
+			rank->top = p;
+			rank->tail = p;
+			rank->lenght++;
+		}else{
+			rank->tail->next = p;
+			rank->tail = p;
+		}
+		rank->lenght++;
 	}
-	rank->lenght++;
+	
 }
 
 Ranking* getRanking(){
@@ -75,13 +79,17 @@ Ranking* getRanking(){
 void rankingDestroy(Ranking *rank){
 	
 	Player *tmp;
+	file = fopen(PATCH,"w");
 
 	while(rank->top->next){
+		fprintf(file, "%s", rank->top->name);
+		fprintf(file, "%d\n", rank->top->points);
 		tmp = rank->top->next;
 		free(rank->top);
 		rank->top = tmp;
 	}
-
+	fprintf(file, "%s", rank->top->name);
+	fprintf(file, "%d\n", rank->top->points);
 	free(rank->top);
 }
 
@@ -91,15 +99,19 @@ void printRanking(Ranking *rank){
 		printf("%d - %s", aux->points, aux->name);
 		aux = aux->next;
 	}
-	printf("%d\n", rank->lenght);
 }
 
 int main(int argc, char const *argv[])
 {
 	Ranking *rank = getRanking();
+	char name[4];
+	scanf("%c%c%c",&name[0],&name[1],&name[2]);
+	strcat(name,"\n");
+	
+	addToRanking(rank, newPlayer(name, 100));
 	printRanking(rank);
 	rankingDestroy(rank);
-	getchar();
+
 
 	return 0;
 

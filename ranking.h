@@ -9,11 +9,10 @@ void addToRanking(Ranking *rank,Player *p);
 
 Ranking* getRanking();
 
+//destroi a fila e escreve no arquivo
 void rankingDestroy(Ranking *rank);
 
 void printRanking(Ranking *rank);
-
-void writeInFile(Ranking *rank);
 
 
 
