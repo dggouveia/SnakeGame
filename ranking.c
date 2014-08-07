@@ -1,6 +1,7 @@
 #include "ranking.h"
 #include "stdlib.h"
 #include "string.h"
+#include "ncurses.h"
 
 typedef struct player Player;
 typedef struct ranking Ranking;
@@ -21,6 +22,7 @@ Ranking* newRanking(){
 	Ranking *p = malloc(sizeof(Ranking));
 	p->top = NULL;
 	p->tail = NULL;
+	p->lenght = 0;
 	return p;
 }
 
@@ -33,7 +35,7 @@ Player* newPlayer(char name[], int score){
 }
 
 void addToRanking(Ranking *rank,Player *p){
-	if (rank->lenght<11){
+	if (rank->lenght<10){
 		if (rank->top == NULL){
 			rank->top = p;
 			rank->tail = p;
@@ -41,15 +43,16 @@ void addToRanking(Ranking *rank,Player *p){
 		}else{
 			rank->tail->next = p;
 			rank->tail = p;
+			rank->lenght++;
 		}
-		rank->lenght++;
+		
 	}
 	
 }
 
 Ranking* getRanking(){
 	Ranking *rank = newRanking();
-	char line[12], name[5];
+	char line[20], name[5];
 	int cont = 0, score;
 
 	FILE *file = fopen(PATCH,"r");
@@ -61,7 +64,7 @@ Ranking* getRanking(){
 		
 	}
 
-	while(fgets(line, 10, file)){
+	while(fgets(line, 20, file)){
 		if(!(cont%2)){
 			strcpy(name, line);
 		}else{
@@ -79,40 +82,34 @@ Ranking* getRanking(){
 void rankingDestroy(Ranking *rank){
 	
 	Player *tmp;
-	file = fopen(PATCH,"w");
 
-	while(rank->top->next){
-		fprintf(file, "%s", rank->top->name);
-		fprintf(file, "%d\n", rank->top->points);
+	while(rank->top){
 		tmp = rank->top->next;
 		free(rank->top);
 		rank->top = tmp;
 	}
-	fprintf(file, "%s", rank->top->name);
-	fprintf(file, "%d\n", rank->top->points);
-	free(rank->top);
+
+	free(rank);
 }
 
-void printRanking(Ranking *rank){
+void writeRanking(Ranking *rank){
+	Player *tmp;
+	file = fopen(PATCH,"w");
+	tmp = rank->top;
+	while(tmp){
+		fprintf(file, "%s", tmp->name);
+		fprintf(file, "%d\n", tmp->points);
+		tmp = tmp->next;
+	}
+	fclose(file);
+}
+
+void printRanking(Ranking *rank, WINDOW *tela){
 	Player *aux = rank->top;
+	int cont = 2;
+	mvwprintw(tela,1,2,"Score    Name");
 	while(aux){
-		printf("%d - %s", aux->points, aux->name);
+		mvwprintw(tela,cont++,2,"%d   -   %s", aux->points, aux->name);
 		aux = aux->next;
 	}
-}
-
-int main(int argc, char const *argv[])
-{
-	Ranking *rank = getRanking();
-	char name[4];
-	scanf("%c%c%c",&name[0],&name[1],&name[2]);
-	strcat(name,"\n");
-	
-	addToRanking(rank, newPlayer(name, 100));
-	printRanking(rank);
-	rankingDestroy(rank);
-
-
-	return 0;
-
 }

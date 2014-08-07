@@ -5,6 +5,7 @@
 #include "cobra.h"
 #include <stdlib.h>
 #include "menu.h"
+#include "ranking.h"
 
 #define WIDTH 65								//tamanho da janela
 #define HEIGTH 20								//tamanho da janela
@@ -17,7 +18,7 @@ ITEM **items; //vetor de items
 MENU *menu; //menu
 ITEM *cur_item; //item selecionado
 WINDOW *menu_window; //janela que irá conter o menu
-
+WINDOW *ranking_window; //janela para ranking
 
 void init_curses()
 {
@@ -50,6 +51,37 @@ int initMenu(){
 
 	menu = new_menu((ITEM **)items);
 	set_menu_spacing(menu,-1,1,1);
+}
+
+void initWinRanking(){
+	exitMenu();
+	ranking_window = subwin(field,WMENU_HEIGHT*2+1,WMENU_WIDTH,WMENU_X-3,WMENU_Y);
+	wbkgd(ranking_window,COLOR_PAIR(3));
+	box(ranking_window,0,0);
+
+	Ranking *rank = getRanking();
+	
+	// char name[4];
+	// scanf("%c%c%c",&name[0],&name[1],&name[2]);
+	// strcat(name,"\n");
+	//addToRanking(rank, newPlayer("name", 100));
+
+	if (rank->lenght > 0)
+	{
+		printRanking(rank, ranking_window);
+		writeRanking(rank);
+		rankingDestroy(rank);
+	}else{
+		mvwprintw(ranking_window,2,3,"jogue!");
+	}
+
+	box(ranking_window,0,0);
+
+	wgetch(ranking_window);
+	delwin(ranking_window);	
+	clearField();
+	openMenu();	
+
 }
 
 void initWinMenu(){
@@ -102,13 +134,14 @@ void readkeyMenu(){
 			if (cur_item == items[ITEM_1])
 			{
 				playGame();
-				break;
 			}
 			else if (cur_item == items[ITEM_4])
 			{
 				exitMenu();
 				close();
 				exit(0);
+			}else if(cur_item == items[ITEM_2]){
+				initWinRanking();
 			}
 
 			
@@ -228,7 +261,6 @@ void playGame (){
 	Food *food = createFood();
 	moveFood(food);
 	drawScenario(snake, food);
-
 	for(;;){
 		
 		clock_t start = clock();

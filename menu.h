@@ -21,6 +21,9 @@ char *choices[] =  {
 	NULL
 };
 
+/*Abre o menu*/
+void openMenu();
+
 /*inicializa o menu*/
 int initMenu();
 
