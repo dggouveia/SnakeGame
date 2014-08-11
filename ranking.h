@@ -1,5 +1,5 @@
 #include "stdio.h"
-#define  PATCH "ranking.txt"
+#define  PATCH ".ranking.txt"
 
 typedef struct player Player;
 typedef struct ranking Ranking;
@@ -30,7 +30,7 @@ void writeRanking(Ranking *rank);
 //destroi a fila e escreve no arquivo
 void rankingDestroy(Ranking *rank);
 
-void printRanking(Ranking *rank, WINDOW *tela);
+void printRanking();
 
 
 

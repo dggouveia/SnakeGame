@@ -20,6 +20,8 @@ ITEM *cur_item; //item selecionado
 WINDOW *menu_window; //janela que irá conter o menu
 WINDOW *ranking_window; //janela para ranking
 
+char namePlayer[4];
+
 void init_curses()
 {
     initscr();
@@ -133,6 +135,7 @@ void readkeyMenu(){
 			cur_item = current_item(menu);
 			if (cur_item == items[ITEM_1])
 			{
+				nodelay(stdscr, true);
 				playGame();
 			}
 			else if (cur_item == items[ITEM_4])
@@ -157,19 +160,39 @@ void openMenu(){
 	readkeyMenu();
 }
 
+void getName(char *newName){	
+	curs_set(1);
+	echo();
+	nodelay(stdscr, true);
+	menu_window = subwin(field,WMENU_HEIGHT,WMENU_WIDTH,WMENU_X,WMENU_Y);
+	clearField();
+	wbkgd(menu_window,COLOR_PAIR(3));
+	mvwprintw(menu_window,2,2,"Your name: ");
+	box(menu_window,0,0);
+	refresh();
+	nocbreak();
+	getch();
+	wscanw(menu_window,"%c%c%c",&newName[0],&newName[1],&newName[2]);
+	cbreak();
+	curs_set(0);
+	noecho();
+	delwin(menu_window);
+	clearField();
+}
 
-void gameOver(Snake *snake){
+
+void gameOver(Snake *snake, int score){
 	char msg[] = "Game Over!";
 	snakeDestroy(snake);
 	nodelay(stdscr, false);
 	clearField();
 	mvwprintw(field,HEIGTH/2,WIDTH/2-strlen(msg)/2,"%s",msg);
 	refreshField();
+	insertOnRanking(score);
 	getch();
 	nodelay(stdscr, true);
 	openMenu();
 
-	//mostra ranking/salva/sai/reinicia
 }
 
 void close(){
@@ -222,20 +245,25 @@ void refreshField(){
 void moveSnake (Snake *snake, int key){
 	SnakePart *part = snake->tail;
 
-	while (part->prev){
-		part->line = part->prev->line;
-		part->col  = part->prev->col;
-		part 	   = part->prev;
+	if (snake->tail->prev){
+		SnakePart *part = snake->tail;
+		snake->tail = snake->tail->prev;
+		snake->tail->next = NULL;
+		part->prev = NULL;
+		part->next = snake->head;
+		snake->head->prev = part;
+		part->line = snake->head->line;
+		part->col = snake->head->col;
+		snake->head = part;		
 	}
-
 	if (key == KEY_UP)
-		part->line--;
+		snake->head->line--;
 	else if (key == KEY_DOWN)
-		part->line++;
+		snake->head->line++;
 	else if (key == KEY_LEFT)
-		part->col--;
+		snake->head->col--;
 	else if (key == KEY_RIGHT)
-		part->col++;
+		snake->head->col++;
 }
 
 
@@ -286,7 +314,8 @@ void playGame (){
 				key = KEY_RIGHT;
 			else if (key == KEY_RIGHT)
 				key = KEY_LEFT;
-		}else key = keyNext != ERR ? keyNext : key;	
+		}else if(!(key == KEY_UP && keyNext == KEY_DOWN) && !(key == KEY_DOWN && keyNext == KEY_UP) && !(key == KEY_LEFT && keyNext == KEY_RIGHT) && !(key == KEY_RIGHT && keyNext == KEY_LEFT))
+			key = keyNext != ERR ? keyNext : key;	
 
 		moveSnake (snake, key);
 		
@@ -295,14 +324,14 @@ void playGame (){
 			snakeIncrease(snake, key);
 			moveFood (food);
 		}else if (snake->head->line <= 0 || snake->head->line >= HEIGTH-1 || snake->head->col <= 0 || snake->head->col >= WIDTH-1 ){
-			gameOver(snake);
+			gameOver(snake, score);
 			break;
 		}
 		else{	
 			part = snake->head->next;
 			while (part){
 				if (snake->head->line == part->line && snake->head->col == part->col)
-					gameOver(snake);
+					gameOver(snake,score);
 				part = part->next;
 			}
 		}

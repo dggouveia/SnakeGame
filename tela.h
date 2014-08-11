@@ -1,5 +1,3 @@
-#ifndef TELA_h
-#define TELA_h
 #include <ncurses.h>
 #include <string.h>
 #include "cobra.h"
@@ -7,11 +5,12 @@
 #define FOOD '*'
 #define SNAKE 'o'
 
+
  /*Inicialia ncurses*/
 void init_curses();
 
 /*Fim de jogo*/
-void gameOver(Snake *snake);
+void gameOver(Snake *snake, int score);
 
 /*Encerra ncurses*/
 void close();
@@ -34,4 +33,5 @@ void playGame ();
 
 void moveSnake(Snake *snake, int key);
 
-#endif
+/*retorna nome do novo jogador*/
+void getName();

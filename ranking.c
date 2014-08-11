@@ -2,21 +2,7 @@
 #include "stdlib.h"
 #include "string.h"
 #include "ncurses.h"
-
-typedef struct player Player;
-typedef struct ranking Ranking;
-
-struct player{
-		char name[5];
-		int points;
-		Player *next;
-};
-
-struct ranking{
-	Player *top;
-	Player *tail;
-	int lenght;
-};
+#include "tela.h"
 
 Ranking* newRanking(){
 	Ranking *p = malloc(sizeof(Ranking));
@@ -79,6 +65,7 @@ Ranking* getRanking(){
 
 }
 
+
 void rankingDestroy(Ranking *rank){
 	
 	Player *tmp;
@@ -92,9 +79,10 @@ void rankingDestroy(Ranking *rank){
 	free(rank);
 }
 
+
 void writeRanking(Ranking *rank){
 	Player *tmp;
-	file = fopen(PATCH,"w");
+	FILE *file = fopen(PATCH,"w");
 	tmp = rank->top;
 	while(tmp){
 		fprintf(file, "%s", tmp->name);
@@ -102,6 +90,54 @@ void writeRanking(Ranking *rank){
 		tmp = tmp->next;
 	}
 	fclose(file);
+}
+
+
+void insertOnRanking(int pScore){
+	char line[20], name[5], newName[5];
+	int cont = 0, score, entry = 0;
+
+	FILE *file = fopen(PATCH,"r");
+	if(file == NULL){
+		
+		file = fopen(PATCH,"w");
+		fclose(file);
+		file = fopen(PATCH,"r");
+		
+	}
+
+	Ranking *rankAux = getRanking();
+	Ranking *rank = newRanking();
+	if (rankAux->lenght == 0 && pScore!=0)
+	{
+		getName(newName);
+		strcat(newName,"\n");
+		addToRanking(rank, newPlayer(newName, pScore));
+		rankingDestroy(rankAux);
+	}else{
+		while(fgets(line, 20, file)){
+			if(!(cont%2)){
+				strcpy(name, line);
+			}else{
+	    		score = atoi(line);
+				Player *player =  newPlayer(name, score);
+				if(entry == 0 && player->points <= pScore && pScore!=0){
+					getName(newName);
+					strcat(newName,"\n");
+					addToRanking(rank, newPlayer(newName, pScore));
+					entry = 1;
+				}
+					addToRanking(rank, player);
+			}
+
+			cont++;
+		}
+	}
+
+	writeRanking(rank);
+	rankingDestroy(rank);
+	fclose(file);
+	openMenu();
 }
 
 void printRanking(Ranking *rank, WINDOW *tela){
