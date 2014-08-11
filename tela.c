@@ -74,7 +74,7 @@ void initWinRanking(){
 		writeRanking(rank);
 		rankingDestroy(rank);
 	}else{
-		mvwprintw(ranking_window,2,3,"jogue!");
+		mvwprintw(ranking_window,2,6,"jogue!");
 	}
 
 	box(ranking_window,0,0);

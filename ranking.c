@@ -95,7 +95,7 @@ void writeRanking(Ranking *rank){
 
 void insertOnRanking(int pScore){
 	char line[20], name[5], newName[5];
-	int cont = 0, score, entry = 0;
+	int cont = 0, score, entry = 0, lenght;
 
 	FILE *file = fopen(PATCH,"r");
 	if(file == NULL){
@@ -108,7 +108,7 @@ void insertOnRanking(int pScore){
 
 	Ranking *rankAux = getRanking();
 	Ranking *rank = newRanking();
-	if (rankAux->lenght == 0 && pScore!=0)
+	if (lenght = rankAux->lenght == 0 && pScore!=0)
 	{
 		getName(newName);
 		strcat(newName,"\n");
@@ -128,6 +128,12 @@ void insertOnRanking(int pScore){
 					entry = 1;
 				}
 					addToRanking(rank, player);
+					if(entry == 0 && lenght<10){
+						getName(newName);
+						strcat(newName,"\n");
+						addToRanking(rank, newPlayer(newName, pScore));
+						entry = 1;
+					}
 			}
 
 			cont++;
