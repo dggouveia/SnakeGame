@@ -35,3 +35,7 @@ void moveSnake(Snake *snake, int key);
 
 /*retorna nome do novo jogador*/
 void getName();
+
+void scoreWindow();
+
+void updateScore(int score);

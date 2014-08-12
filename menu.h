@@ -4,8 +4,8 @@
 
 #define WMENU_WIDTH 18 //Largura da janela de menu
 #define WMENU_HEIGHT 6 //Alrura da janela de menu
-#define WMENU_X 11 //Posição x da janela
-#define WMENU_Y 33 //posição y da janela
+#define WMENU_X 18 //Posição x da janela
+#define WMENU_Y 29 //posição y da janela
 
 
 enum options{

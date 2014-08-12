@@ -9,15 +9,16 @@
 
 #define WIDTH 65								//tamanho da janela
 #define HEIGTH 20								//tamanho da janela
-#define POS_FIELD_X 5 							//onde começa o campo
-#define POS_FIELD_Y 10 							//onde começa o campo
-#define TIME (CLOCKS_PER_SEC / 5)
+#define WSCORE_Y 71								//posição do score
+#define POS_FIELD_X 12 							//onde começa o campo
+#define POS_FIELD_Y 5 							//onde começa o campo
+#define TIME (CLOCKS_PER_SEC / 5)				//controla o nível de dificuldade
 
 WINDOW *field; //cria um ponteiro para o tipo WINDOW definido na biblioteca NCURSES
 ITEM **items; //vetor de items
 MENU *menu; //menu
 ITEM *cur_item; //item selecionado
-WINDOW *menu_window; //janela que irá conter o menu
+WINDOW *menu_window, *score_window; //janela que irá conter o menu e janela do score
 WINDOW *ranking_window; //janela para ranking
 
 char namePlayer[4];
@@ -27,10 +28,13 @@ void init_curses()
     initscr();
     start_color();
     init_pair(1,COLOR_BLACK,COLOR_CYAN);
-    init_pair(2,COLOR_YELLOW,COLOR_BLACK);
+    /*cor da comida*/
+    init_pair(2,COLOR_RED,COLOR_RED);
     init_pair(3,COLOR_WHITE,COLOR_BLACK);
     /* Cor da cobra */
     init_pair(4,COLOR_BLACK, COLOR_BLACK);
+    init_pair(5,COLOR_CYAN, COLOR_BLACK);
+    init_pair(6,COLOR_BLACK, COLOR_WHITE);
     /*Desabilita o cursor na tela*/
     curs_set(0);
     nodelay(stdscr, true);
@@ -63,11 +67,6 @@ void initWinRanking(){
 
 	Ranking *rank = getRanking();
 	
-	// char name[4];
-	// scanf("%c%c%c",&name[0],&name[1],&name[2]);
-	// strcat(name,"\n");
-	//addToRanking(rank, newPlayer("name", 100));
-
 	if (rank->lenght > 0)
 	{
 		printRanking(rank, ranking_window);
@@ -96,6 +95,20 @@ void initWinMenu(){
 	box(menu_window,0,0);
 	post_menu(menu);
 } 
+
+void scoreWindow(){
+	score_window = newwin(WMENU_HEIGHT-2,WMENU_WIDTH,POS_FIELD_X,WSCORE_Y);
+	wbkgd(score_window,COLOR_PAIR(6));
+	box(score_window,0,0);
+	mvwprintw(score_window,1,(WMENU_WIDTH-strlen("Score:"))/2, "%s","Score:");
+	refresh();
+}
+
+void updateScore(int score){
+	mvwprintw(score_window,2,(WMENU_WIDTH/2-strlen("Score:")), "%d",score);
+	box(score_window,0,0);
+	wrefresh(score_window);
+}
 
 void exitMenu(){
 	int i;
@@ -182,6 +195,7 @@ void getName(char *newName){
 
 
 void gameOver(Snake *snake, int score){
+	delwin(score_window);
 	char msg[] = "Game Over!";
 	snakeDestroy(snake);
 	nodelay(stdscr, false);
@@ -209,17 +223,29 @@ void drawScenario(Snake *snake, Food *food){
 		wattroff(field, COLOR_PAIR(4));
 		part = part->next;
 	}
-	mvwprintw (stdscr, 1, 1, "line = %d / col = %d", food->line, food->col);
+	wattron(field, COLOR_PAIR(2));
 	mvwprintw(field, food->line, food->col, "X");
+	wattroff(field, COLOR_PAIR(2));
+	scoreWindow();
 }
 
 void draw_field(){
 	init_curses();
 	bkgd(COLOR_PAIR(3));
-	mvprintw(1,10,"ADS Snake\t\t\t\t by: Joao M. and Douglas G.");
-	wattron(field, COLOR_PAIR(2));
-	mvprintw(3,15,"Uses as setas do seu teclado para movimentar a cobra!");
-	wattroff(field, COLOR_PAIR(2));
+	wattron(stdscr, COLOR_PAIR(5));
+	mvprintw(0, 0,"%s%s%s%s%s%s%s%s%s%s%s", "         ___           ___           ___           ___           ___              \n",
+"        /\\  \\         /\\__\\         /\\  \\         /\\__\\         /\\  \\             \n",
+"       /::\\  \\       /::|  |       /::\\  \\       /:/  /        /::\\  \\            \n",
+"      /:/\\ \\  \\     /:|:|  |      /:/\\:\\  \\     /:/__/        /:/\\:\\  \\           \n",
+"     _\\:\\~\\ \\  \\   /:/|:|  |__   /::\\~\\:\\  \\   /::\\__\\____   /::\\~\\:\\  \\          \n",
+"    /\\ \\:\\ \\ \\__\\ /:/ |:| /\\__\\ /:/\\:\\ \\:\\__\\ /:/\\:::::\\__\\ /:/\\:\\ \\:\\__\\         \n",
+"    \\:\\ \\:\\ \\/__/ \\/__|:|/:/  / \\/__\\:\\/:/  / \\/_|:|~~|~    \\:\\~\\:\\ \\/__/         \n",
+"     \\:\\ \\:\\__\\       |:/:/  /       \\::/  /     |:|  |      \\:\\ \\:\\__\\           \n",
+"      \\:\\/:/  /       |::/  /        /:/  /      |:|  |       \\:\\ \\/__/           \n",
+"       \\::/  /        /:/  /        /:/  /       |:|  |        \\:\\__\\             \n",
+"        \\/__/         \\/__/         \\/__/         \\|__|         \\/__/             ");
+	wattroff(stdscr, COLOR_PAIR(5));
+	mvprintw (32, 38, "by Douglas Gabriel & João Marcos");
 	field = subwin(stdscr,HEIGTH,WIDTH,POS_FIELD_X,POS_FIELD_Y);
 	nodelay(field, true);
 	curs_set(0);
@@ -289,6 +315,7 @@ void playGame (){
 	Food *food = createFood();
 	moveFood(food);
 	drawScenario(snake, food);
+	updateScore(score);
 	for(;;){
 		
 		clock_t start = clock();
@@ -323,6 +350,7 @@ void playGame (){
 			score += 5;
 			snakeIncrease(snake, key);
 			moveFood (food);
+			updateScore(score);
 		}else if (snake->head->line <= 0 || snake->head->line >= HEIGTH-1 || snake->head->col <= 0 || snake->head->col >= WIDTH-1 ){
 			gameOver(snake, score);
 			break;
