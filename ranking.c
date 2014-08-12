@@ -128,15 +128,16 @@ void insertOnRanking(int pScore){
 					entry = 1;
 				}
 					addToRanking(rank, player);
-					if(entry == 0 && lenght<10 && pScore>0){
-						getName(newName);
-						strcat(newName,"\n");
-						addToRanking(rank, newPlayer(newName, pScore));
-						entry = 1;
-					}
 			}
 
 			cont++;
+		}
+
+		if(entry == 0 && lenght<10 && pScore>0){
+			getName(newName);
+			strcat(newName,"\n");
+			addToRanking(rank, newPlayer(newName, pScore));
+			entry = 1;
 		}
 	}
 
