@@ -12,7 +12,11 @@
 #define WSCORE_Y 71								//posição do score
 #define POS_FIELD_X 12 							//onde começa o campo
 #define POS_FIELD_Y 5 							//onde começa o campo
-#define TIME (CLOCKS_PER_SEC / 5)				//controla o nível de dificuldade
+
+/*dificuldade*/
+#define HARD (CLOCKS_PER_SEC / 15)				
+#define NORMAL (CLOCKS_PER_SEC / 10)
+#define EASY (CLOCKS_PER_SEC / 7)
 
 WINDOW *field; //cria um ponteiro para o tipo WINDOW definido na biblioteca NCURSES
 ITEM **items; //vetor de items
@@ -176,7 +180,7 @@ void openMenu(){
 void getName(char *newName){	
 	curs_set(1);
 	echo();
-	nodelay(stdscr, true);
+	nodelay(stdscr, TRUE);
 	menu_window = subwin(field,WMENU_HEIGHT,WMENU_WIDTH,WMENU_X,WMENU_Y);
 	clearField();
 	wbkgd(menu_window,COLOR_PAIR(3));
@@ -300,7 +304,6 @@ void moveFood (Food *food){
 
 	/* Os números gerads estarão entre as demarcações do cenário */
 	food->line =  ((rand() % (HEIGTH-2)+1));
-	
 	food->col  =  ((rand() % (WIDTH-2))+1);
 	
 }
@@ -319,6 +322,7 @@ void playGame (){
 	drawScenario(snake, food);
 	updateScore(score);
 	key = KEY_RIGHT;
+	cbreak();
 	for(;;){
 		
 		clock_t start = clock();
@@ -328,11 +332,10 @@ void playGame (){
 		nodelay(field, true);
 
 		keyNext = getch();
-
 		do{
 			if (keyNext == ERR)
 				keyNext = getch();
-		}while (clock() - start < TIME - score*1000);
+		}while (clock() - start < HARD);
 
 		if (keyNext == (int)' '){
 			snakeReverse(snake);

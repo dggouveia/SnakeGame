@@ -2,10 +2,6 @@
 #include <string.h>
 #include "cobra.h"
 
-#define FOOD '*'
-#define SNAKE 'o'
-
-
  /*Inicialia ncurses*/
 void init_curses();
 
@@ -32,6 +28,8 @@ void clearField();
 void playGame ();
 
 void moveSnake(Snake *snake, int key);
+
+void moveFood (Food *food);
 
 /*retorna nome do novo jogador*/
 void getName();
