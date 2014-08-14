@@ -16,22 +16,27 @@ SnakePart* newSnakePart (){
 	return part;
 }
 
-void snakeIncrease (Snake *snake, int key){
+void snakeIncrease (Snake *snake){
 
 	SnakePart *newPart = newSnakePart();
-	if (key == KEY_UP){
+
+	if (snake->tail->line > snake->tail->prev->line){
 		newPart->line = snake->tail->line + 1;
 		newPart->col  = snake->tail->col;
-	}else if (key == KEY_DOWN){
-		newPart->line = snake->tail->line - 1;
-		newPart->col  = snake->tail->col;
-	}else if (key == KEY_LEFT){
-		newPart->col = snake->tail->col + 1;
-		newPart->line  = snake->tail->line;
-	}else if (key == KEY_RIGHT){
-		newPart->col = snake->tail->col - 1;
-		newPart->line  = snake->tail->line;
 	}
+	else if (snake->tail->line < snake->tail->prev->line){
+		newPart->line = snake->tail->line - 1;
+		newPart->col  = snake->tail->col;	
+	}
+	else if (snake->tail->col > snake->tail->prev->col){
+		newPart->line = snake->tail->line;
+		newPart->col  = snake->tail->col + 1;		
+	}
+	else if (snake->tail->col < snake->tail->prev->col){
+		newPart->line = snake->tail->line;
+		newPart->col  = snake->tail->col - 1;		
+	}
+
 	snake->tail->next = newPart;
 	newPart->prev = snake->tail;
 	newPart->next = NULL;
@@ -43,8 +48,11 @@ void snakeIncrease (Snake *snake, int key){
 Snake* createSnake (){
 
 	Snake *snake = malloc (sizeof(Snake));
-	snake->head = snake->tail = newSnakePart();
-
+	snake->head = newSnakePart();
+	snake->tail = newSnakePart();
+	snake->head->next = snake->tail;
+	snake->tail->prev = snake->head;
+	
 	return snake;
 }
 

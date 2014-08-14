@@ -312,10 +312,13 @@ void playGame (){
 	Snake *snake = createSnake();
 	snake->head->line = HEIGTH/2;
 	snake->head->col  = WIDTH/2;
+	snake->tail->line = snake->head->line;
+	snake->tail->col  = snake->head->col + 1;
 	Food *food = createFood();
 	moveFood(food);
 	drawScenario(snake, food);
 	updateScore(score);
+	key = KEY_RIGHT;
 	for(;;){
 		
 		clock_t start = clock();
@@ -333,13 +336,13 @@ void playGame (){
 
 		if (keyNext == (int)' '){
 			snakeReverse(snake);
-			if (key == KEY_UP)
+			if (snake->head->line > snake->head->next->line)
 				key = KEY_DOWN;
-			else if (key == KEY_DOWN)
+			else if (snake->head->line < snake->head->next->line)
 				key = KEY_UP;
-			else if (key == KEY_LEFT)
+			else if (snake->head->col > snake->head->next->col)
 				key = KEY_RIGHT;
-			else if (key == KEY_RIGHT)
+			else if (snake->head->col < snake->head->next->col)
 				key = KEY_LEFT;
 		}else if(!(key == KEY_UP && keyNext == KEY_DOWN) && !(key == KEY_DOWN && keyNext == KEY_UP) && !(key == KEY_LEFT && keyNext == KEY_RIGHT) && !(key == KEY_RIGHT && keyNext == KEY_LEFT))
 			key = keyNext != ERR ? keyNext : key;	
@@ -348,7 +351,7 @@ void playGame (){
 		
 		if (snake->head->col == food->col && snake->head->line == food->line){
 			score += 5;
-			snakeIncrease(snake, key);
+			snakeIncrease(snake);
 			moveFood (food);
 			updateScore(score);
 		}else if (snake->head->line <= 0 || snake->head->line >= HEIGTH-1 || snake->head->col <= 0 || snake->head->col >= WIDTH-1 ){

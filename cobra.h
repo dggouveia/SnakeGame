@@ -27,7 +27,7 @@ Snake* createSnake();
 
 SnakePart* newSnakePart();
 
-void snakeIncrease(Snake *snake, int key);
+void snakeIncrease(Snake *snake);
 
 void snakeDestroy(Snake *snake);
 
