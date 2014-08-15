@@ -1,3 +1,4 @@
 *.out
 /ranking.h.gch
 /ranking.o
+.ranking.txt
