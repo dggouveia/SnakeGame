@@ -30,7 +30,7 @@ ITEM *cur_item; //item selecionado
 WINDOW *menu_window, *score_window; //janela que irá conter o menu e janela do score
 WINDOW *ranking_window; //janela para ranking
 
-char namePlayer[4];
+char namePlayer[4] = "   ";
 unsigned int dificulty = NORMAL;
 unsigned int addScore  = SCORENORMAL;
 
@@ -282,8 +282,8 @@ void openLevelMenu(){
 }
 
 void getName(char *newName){	
-	curs_set(1);
-	echo();
+	int key, cont = 0;
+	cbreak();
 	nodelay(stdscr, TRUE);
 	menu_window = subwin(field,WMENU_HEIGHT,WMENU_WIDTH,WMENU_X,WMENU_Y);
 	clearField();
@@ -293,10 +293,29 @@ void getName(char *newName){
 	refresh();
 	nocbreak();
 	keypad(menu_window, FALSE);
-	wscanw(menu_window,"%c%c%c",&newName[0],&newName[1],&newName[2]);
-	int i;
-	for (i = 0; i<3; ++i)
-		newName[i] = (char) toupper(newName[i]);
+	while(cont<4){
+		wrefresh(menu_window);
+		key = getch();
+		if(key >96 && key<123)
+		{
+				if(cont<3){
+					newName[cont] = (char) key;
+					newName[cont] = (char) toupper(newName[cont]);
+				}
+				cont++;
+				mvwprintw(menu_window,2,13,"%s",newName);
+				wrefresh(menu_window);
+		}
+
+		if (cont == 3)
+		{
+			wattron(menu_window, COLOR_PAIR(5));
+			mvwprintw(menu_window,4,2,"%s","b to continue!");
+			wattroff(menu_window, COLOR_PAIR(5));
+		}
+
+	}
+
 	cbreak();
 	curs_set(0);
 	noecho();
