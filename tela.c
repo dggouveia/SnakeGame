@@ -1,5 +1,6 @@
 #include <ncurses.h>
 #include <string.h>
+#include <ctype.h>
 #include "tela.h"
 #include <time.h>
 #include "cobra.h"
@@ -20,12 +21,14 @@
 
 WINDOW *field; //cria um ponteiro para o tipo WINDOW definido na biblioteca NCURSES
 ITEM **items; //vetor de items
-MENU *menu; //menu
+MENU *mainMenu;
+MENU *levelMenu; //menus
 ITEM *cur_item; //item selecionado
 WINDOW *menu_window, *score_window; //janela que irá conter o menu e janela do score
 WINDOW *ranking_window; //janela para ranking
 
 char namePlayer[4];
+unsigned int dificulty = NORMAL;
 
 void init_curses()
 {
@@ -50,21 +53,38 @@ void init_curses()
     keypad(stdscr,TRUE);
 }
 
-int initMenu(){
+int initMainMenu(){
 	int i;
 	items = (ITEM **)calloc(4, sizeof(ITEM *));
 	if(!items)
 		return 1;
 
 	for(i=0;i<4;++i)
-		items[i] = (ITEM*)new_item(" ", choices[i]);
+		items[i] = (ITEM*)new_item(" ", menuChoices[i]);
 
-	menu = new_menu((ITEM **)items);
-	set_menu_spacing(menu,-1,1,1);
+	mainMenu  = new_menu((ITEM **)items);
+	set_menu_spacing(mainMenu,-1,1,1);
+
+	return 0;
+}
+
+int initlevelMenu(){
+	int i;
+	items = (ITEM **)calloc(4, sizeof(ITEM *));
+	if(!items)
+		return 1;
+
+	for(i=0;i<4;++i)
+		items[i] = (ITEM*)new_item(" ", levelChoices[i]);
+
+	levelMenu  = new_menu((ITEM **)items);
+	set_menu_spacing(levelMenu,-1,1,1);
+
+	return 0;
 }
 
 void initWinRanking(){
-	exitMenu();
+	exitMenu(mainMenu, menuChoices);
 	ranking_window = subwin(field,WMENU_HEIGHT*2+1,WMENU_WIDTH,WMENU_X-3,WMENU_Y);
 	wbkgd(ranking_window,COLOR_PAIR(3));
 	box(ranking_window,0,0);
@@ -77,7 +97,7 @@ void initWinRanking(){
 		writeRanking(rank);
 		rankingDestroy(rank);
 	}else{
-		mvwprintw(ranking_window,2,6,"jogue!");
+		mvwprintw(ranking_window,2,6,"Play now");
 	}
 
 	box(ranking_window,0,0);
@@ -89,7 +109,7 @@ void initWinRanking(){
 
 }
 
-void initWinMenu(){
+void initWinMenu(MENU *menu){
 	menu_window = subwin(field,WMENU_HEIGHT,WMENU_WIDTH,WMENU_X,WMENU_Y);
 	keypad(menu_window, TRUE);
 	wbkgd(menu_window,COLOR_PAIR(3));
@@ -99,6 +119,25 @@ void initWinMenu(){
 	box(menu_window,0,0);
 	post_menu(menu);
 } 
+
+void showCurrentDificulty(){
+	if(dificulty == EASY){
+		mvwprintw(menu_window, 1,14,"<<");
+		mvwprintw(menu_window, 2,14,"  ");
+		mvwprintw(menu_window, 3,14,"  ");
+		wrefresh(menu_window);
+	}else if(dificulty == NORMAL){
+		mvwprintw(menu_window, 1,14,"  ");
+		mvwprintw(menu_window, 2,14,"<<");
+		mvwprintw(menu_window, 3,14,"  ");
+		wrefresh(menu_window);
+	}else{
+		mvwprintw(menu_window, 1,14,"  ");
+		mvwprintw(menu_window, 2,14,"  ");
+		mvwprintw(menu_window, 3,14,"<<");
+		wrefresh(menu_window);
+	}
+}
 
 void scoreWindow(){
 	score_window = newwin(WMENU_HEIGHT-2,WMENU_WIDTH,POS_FIELD_X,WSCORE_Y);
@@ -114,7 +153,7 @@ void updateScore(int score){
 	wrefresh(score_window);
 }
 
-void exitMenu(){
+void exitMenu(MENU *menu, char **choices){
 	int i;
 	/*exclui menu*/	
 	unpost_menu(menu);
@@ -141,40 +180,98 @@ void readkeyMenu(){
 	   	switch(key)
 	    {	
 	    	case KEY_DOWN:
-		        menu_driver(menu, REQ_DOWN_ITEM);
+		        menu_driver(mainMenu, REQ_DOWN_ITEM);
 				break;
 			case KEY_UP:
-				menu_driver(menu, REQ_UP_ITEM);
+				menu_driver(mainMenu, REQ_UP_ITEM);
 				break;
 		}
 
 		if(key == 10){
-			cur_item = current_item(menu);
+			cur_item = current_item(mainMenu);
+
 			if (cur_item == items[ITEM_1])
 			{
 				nodelay(stdscr, true);
-				playGame();
+				playGame(dificulty);
 			}
-			else if (cur_item == items[ITEM_4])
-			{
-				exitMenu();
-				close();
-				exit(0);
-			}else if(cur_item == items[ITEM_2]){
+			else if(cur_item == items[ITEM_2]){
 				initWinRanking();
 			}
+			else if (cur_item == items[ITEM_3])
+			{
+				exitMenu(mainMenu, menuChoices);
+				openLevelMenu();
+				readkeyLevelMenu();
+			}
+			else
+			{
+				exitMenu(mainMenu, menuChoices);
+				close();
+				exit(0);
+			}			
+		}
+	}while(true);
+}
 
-			
+
+void readkeyLevelMenu(){
+	int key;
+	do
+	{
+		key = wgetch(menu_window);
+	   	switch(key)
+	    {	
+	    	case KEY_DOWN:
+		        menu_driver(levelMenu, REQ_DOWN_ITEM);
+				break;
+			case KEY_UP:
+				menu_driver(levelMenu, REQ_UP_ITEM);
+				break;
+		}
+
+		if(key == 10){
+			cur_item = current_item(levelMenu);
+
+			if (cur_item == items[ITEM_1])
+			{
+				dificulty = EASY;
+				showCurrentDificulty();
+			}
+			else if(cur_item == items[ITEM_2])
+			{
+				dificulty = NORMAL;
+				showCurrentDificulty();
+			}
+			else if (cur_item == items[ITEM_3])
+			{
+				dificulty = HARD;
+				showCurrentDificulty();
+			}
+			else
+			{
+				exitMenu(levelMenu, levelChoices);
+				openMenu();
+			}			
 		}
 	}while(true);
 
 }
 
+
+
 void openMenu(){
-	initMenu();
-	initWinMenu();
+	initMainMenu();
+	initWinMenu(mainMenu);
 	refresh();
 	readkeyMenu();
+}
+
+void openLevelMenu(){
+	initlevelMenu();
+	initWinMenu(levelMenu);
+	showCurrentDificulty();
+	refresh();
 }
 
 void getName(char *newName){	
@@ -188,8 +285,11 @@ void getName(char *newName){
 	box(menu_window,0,0);
 	refresh();
 	nocbreak();
-	getch();
+	keypad(menu_window, FALSE);
 	wscanw(menu_window,"%c%c%c",&newName[0],&newName[1],&newName[2]);
+	int i;
+	for (i = 0; i<3; ++i)
+		newName[i] = (char) toupper(newName[i]);
 	cbreak();
 	curs_set(0);
 	noecho();
@@ -209,7 +309,7 @@ void gameOver(Snake *snake, int score){
 	insertOnRanking(score);
 	getch();
 	nodelay(stdscr, true);
-	openMenu();
+	openMenu(mainMenu);
 
 }
 
@@ -273,7 +373,7 @@ void refreshField(){
 }
 
 void moveSnake (Snake *snake, int key){
-	SnakePart *part = snake->tail;
+	SnakePart *part = snake->tail; //isso aqui nao ta precisando
 
 	if (snake->tail->prev){
 		SnakePart *part = snake->tail;
@@ -335,7 +435,7 @@ void playGame (){
 		do{
 			if (keyNext == ERR)
 				keyNext = getch();
-		}while (clock() - start < HARD);
+		}while (clock() - start < dificulty);
 
 		if (keyNext == (int)' '){
 			snakeReverse(snake);
