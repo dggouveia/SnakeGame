@@ -15,9 +15,12 @@
 #define POS_FIELD_Y 5 							//onde começa o campo
 
 /*dificuldade*/
-#define HARD (CLOCKS_PER_SEC / 15)				
+#define HARD (CLOCKS_PER_SEC / 15)
+#define SCOREHARD 10				
 #define NORMAL (CLOCKS_PER_SEC / 10)
+#define SCORENORMAL 5
 #define EASY (CLOCKS_PER_SEC / 7)
+#define SCOREEASY 2
 
 WINDOW *field; //cria um ponteiro para o tipo WINDOW definido na biblioteca NCURSES
 ITEM **items; //vetor de items
@@ -29,6 +32,7 @@ WINDOW *ranking_window; //janela para ranking
 
 char namePlayer[4];
 unsigned int dificulty = NORMAL;
+unsigned int addScore  = SCORENORMAL;
 
 void init_curses()
 {
@@ -236,16 +240,19 @@ void readkeyLevelMenu(){
 			if (cur_item == items[ITEM_1])
 			{
 				dificulty = EASY;
+				addScore  = SCOREEASY;
 				showCurrentDificulty();
 			}
 			else if(cur_item == items[ITEM_2])
 			{
 				dificulty = NORMAL;
+				addScore  = SCORENORMAL;
 				showCurrentDificulty();
 			}
 			else if (cur_item == items[ITEM_3])
 			{
 				dificulty = HARD;
+				addScore  = SCOREHARD;
 				showCurrentDificulty();
 			}
 			else
@@ -453,8 +460,8 @@ void playGame (){
 		moveSnake (snake, key);
 		
 		if (snake->head->col == food->col && snake->head->line == food->line){
-			score += 5;
-			snakeIncrease(snake);
+			score += addScore;
+			snakeIncrease(snake); 
 			moveFood (food);
 			updateScore(score);
 		}else if (snake->head->line <= 0 || snake->head->line >= HEIGTH-1 || snake->head->col <= 0 || snake->head->col >= WIDTH-1 ){
