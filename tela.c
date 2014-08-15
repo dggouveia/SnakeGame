@@ -101,7 +101,7 @@ void initWinRanking(){
 		writeRanking(rank);
 		rankingDestroy(rank);
 	}else{
-		mvwprintw(ranking_window,2,6,"Play now");
+		mvwprintw(ranking_window,2,5,"Play now!");
 	}
 
 	box(ranking_window,0,0);
