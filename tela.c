@@ -473,8 +473,9 @@ void playGame (){
 				key = KEY_RIGHT;
 			else if (snake->head->col < snake->head->next->col)
 				key = KEY_LEFT;
-		}else if(!(key == KEY_UP && keyNext == KEY_DOWN) && !(key == KEY_DOWN && keyNext == KEY_UP) && !(key == KEY_LEFT && keyNext == KEY_RIGHT) && !(key == KEY_RIGHT && keyNext == KEY_LEFT))
-			key = keyNext != ERR ? keyNext : key;	
+		}else if (keyNext == KEY_LEFT || keyNext == KEY_RIGHT || keyNext == KEY_UP || keyNext == KEY_DOWN)
+			if(!(key == KEY_UP && keyNext == KEY_DOWN) && !(key == KEY_DOWN && keyNext == KEY_UP) && !(key == KEY_LEFT && keyNext == KEY_RIGHT) && !(key == KEY_RIGHT && keyNext == KEY_LEFT))
+				key = keyNext != ERR ? keyNext : key;	
 
 		moveSnake (snake, key);
 		
